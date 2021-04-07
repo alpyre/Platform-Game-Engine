@@ -1,0 +1,166 @@
+Production state recommendations:
+--------------------------------
+   Since the automatic display handling is turned off by Copper Off command,
+   try not to use the CTRL+C breaking functionality of AmosPro during
+   production. Try to exit program programmatically using a Goto QUIT (which
+   calls Copper On before End). And if you really have to do CTRL+C break,
+   hitting the Esc key immediately after, can turn the Copper On. But if you hit
+   Enter, you will have to reboot the Amiga to get the display back. So beware.
+
+   There are some production level safety/debug code in the engine here and
+   there. Removing them before release can save you some disk space and CPU
+   time. They are commented as "Production" so unfolding all procedures and
+   doing a search for "Production" will help you locate them easily.
+
+   You can also find some opportunities of possible optimization by searching
+   "TODO" word in the code as well.
+
+Tileset data structure:
+----------------------
+   Tile bank is a standard Amos Icon Bank. Tile id's start from 1. Tile 1 should
+   be the empty transparent tile (where distant background will be visible).
+   You can use the Sheet2TileSet tool to create your Icon Bank from an iff tile
+   sheet. Sort your tiles to have platform tiles (the tiles where the player can
+   stand on) in the end. Set the id of the first platform tile in TS_PLATFORM
+   variable.
+
+Tilemap data structure:
+----------------------
+   Tilemap loaded by the engine is a text file containing an array of values
+   separated by commas.
+
+   First two values are map width and height.
+   Following (width x height) values are tile id's (tile id's start from 1).
+   Finally a terminator value 0.
+
+   Example:
+          +-Map width                                     +-ID of the last tile
+          |                                               |
+         100,12,1,1,1,1,25,26,27,28,29, ... ... 4,4,5,5,4,4,0
+              | |                                           |
+   Map height-+ +-ID of the first tile                      +-Terminator
+
+   Note: The engine automatically adds two empty (and never visible) columns to
+   the map data as it loads. This is a requirement of the scroll algorithm.
+   If you plan to change tile id's on the map during game, consider this in your
+   calculations. As long as you use the provided MAP_MODULO value and add 1
+   you'll be correct.
+
+   Workflow recommendations:
+   Use the free tool Tiled (mapeditor.org) to create your game map. You can use
+   the same tile sheet you used to create the Icon Bank (after converting to png
+   of course).
+   Create a single layered, single tileset map.
+   Save your map as a .JS file.
+   Open the saved file in a text editor and copy the contents of the array
+   called "data" to a new text file.
+   Add map width and height to the start.
+   Add terminator to the end.
+   Mass replace all " 0," with " 1,". (gets rid of invalid empty id's)
+   Mass replace all " " with "".      (gets rid of spaces)
+   Save your file.
+   Done.
+
+Custom Sprite Bank data structure:
+---------------------------------
+   Bank files (.spr) contain data as described in the pseudo C code below:
+
+   WORD TableSize;     // Number of images in the bank
+   struct {
+      WORD Offset;     // Byte offset from WordsOfSpriteData[0] to the the image
+      BYTE Type;       // Defines the sprite usage of image
+      BYTE VOffset;    // This is added to the requested Y position
+   } Table[TableSize];
+   WORD SpriteDataSize;// Size of WordsOfSpriteData in bytes
+   WORD WordsOfSpriteData[];
+
+   Values for Type is as follows:
+     1   : Image will use a single hardware sprite  (3 colors and 16px wide max)
+     2-8 : Image will be made up of this many hardware sprites connected
+           side by side horizontally.       (3 colors and up to 128 px wide max)
+     18  : Image will use 2 attached hardware sprites (15 colors, 16px wide max)
+     20  : Image will be made up of two type18 sprites connected side by side
+           horizontally (4 hardware sprites used)     (15 colors, 32px wide max)
+     22  : Image will be made up of three type18 sprites connected side by side
+           horizontally (6 hardware sprites used)     (15 colors, 48px wide max)
+     24  : Image will be made up of four type18 sprites connected side by side
+           horizontally (8 hardware sprites used)     (15 colors, 64px wide max)
+
+   Each sprite image data in the "WordsOfSpriteData" is structured as described
+   in the Amiga® Hardware Reference Manual:
+   http://amigadev.elowar.com/read/ADCD_2.1/Hardware_Manual_guide/node00B9.html
+   ...and accessed by its "Offset" from the "Table".
+
+   Note: Engine will allocate 4 null bytes before this structure as it loads the
+   bank to be used as the "Dummy" sprite. Sprite registers are pointed to the
+   dummy sprite to not display anything. Bear this in mind and always use the
+   provided pointers like: CUSTOM_SPRITE_TABLE_PT, CUSTOM_SPRITES_PT if you want
+   to access the sprite image data or the table.
+
+   Note: Because the scroll engine requires Wide Bitplane Fetch mode the last
+   hardware sprite will not be displayed. This is an hardware limitation:
+   http://amigadev.elowar.com/read/ADCD_2.1/Hardware_Manual_guide/node02D4.html
+   So Type 8 and Type 24 images are not usable in this implementation.
+
+   Workflow recommendations:
+   You can use Personal Paint to convert png sprite sheets into IFF files.
+   Then use the provided Sheet2CustomSprite tool to create your custom sprite
+   banks. The minimum possible memory will allocated to display images (empty
+   sprites, lines and even planes are skipped). You can merge two banks together
+   with the tool CustomSpriteMerger.
+
+Custom Copper List:
+------------------
+   The engine uses the Cop Move, Cop Wait and Cop Swap commands to create a
+   template custom copper list. You can find these commands in the procedure
+   CUSTOM_COPPER_LIST. The address in the shared global CL_PT points to the
+   created copper list. The values in this copper list will be updated at every
+   vertical blank. You will find other shared globals holding addresses pointing
+   to the critical values in the list.
+
+   Workflow recommendations:
+   All palette values on the copper list are initialized to 0 at start. To
+   easily code your copper effects I'd recommend commenting out the INIT_FADE
+   and_FADE=IN lines at program start and set your color values into the copper
+   list. After creating your palette and all your copper effects make a call to
+   the provided DUMP_COPPER_COLORS[] procedure. It will create you your color
+   table as an ASCII file. Merge it into your program and replace it with the
+   table in _INIT_VARIABLES subroutine. Also update the _COLOR_INSTRUCTIONS
+   value to the size of your copper list. Now you can set the color values in
+   the Copper List back to 0 and reactivate the fade engine by uncommenting
+   INIT_FADE, and _FADE=IN lines. Now you can completely remove
+   DUMP_COPPER_COLORS[] procedure from your code if you want.
+
+   Checking out CodeTapper's wonderful web site (codetapper.com) to get
+   information on the common practice copper tricks is also highly recommended.
+
+Fade Engine:
+-----------
+   This is a different fade algorithm than the one used in many Amiga games. It
+   respects color hues during fade. Though, it may display out of hue steps if
+   _FADE_STEPS is bigger. Unlike common fade routines bright colors and dark
+   colors are faded at different speeds so they appear and disappear
+   simultaneously.
+
+   If you want to set a different fade speed for the next fade, do a call to
+   the CHANGE_FADE_STEPS[] procedure.
+
+   You can do half fades. For example use _FADE=OUT/2.
+
+   Data structure of _FADE_TABLE() is as described in the pseudo C code below:
+
+   struct {
+      BYTE Red_Incremental;    BYTE Red_Incremental_Precision;
+      BYTE Red_CurrentValue;   BYTE Red_CurrentValue_Precision;
+      BYTE Green_Incremental;  BYTE Green_Incremental_Precision;
+      BYTE Green_CurrentValue; BYTE Green_CurrentValue_Precision;
+      BYTE Blue_Incremental;   BYTE Blue_Incremental_Precision;
+      BYTE Blue_CurrentValue;  BYTE Blue_CurrentValue_Precision;
+   } _FADE_TABLE[_COLOR_INSTRUCTIONS];
+
+---------------------------------------------------------------
+These are all the important technical details about the engine.
+You can get more information from inline comments.
+Now go create a great Amiga game!
+
+Alper Sönmez 06/04/2021
