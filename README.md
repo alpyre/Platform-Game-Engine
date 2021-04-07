@@ -1,7 +1,7 @@
 # Platform Game Engine
 A Platform Game Engine for AMOS
 
-![PlatformGame](https://s4.gifyu.com/images/PlatformEngine_Small.gif)
+<img src="https://s4.gifyu.com/images/PlatformEngine_Small.gif" />
 
 Amos has very convenient commands and underlying engines which provide easy
 access to the capabilities of the Amiga hardware without the need to know the
