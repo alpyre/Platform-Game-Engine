@@ -41,13 +41,13 @@ as open Amos code to create the tile and sprite sets to use in the game.
   compatible sizes which scrolls at 50 FPS and animate at 25 FPS. These can
   be easily modified according to needs.
 
-- Scroll Engine
+- Scroll Engine  
   Highly optimized limitless horizontal scrolling algorithm is implemented.
   Supports tilemaps of any size and can scroll any speed up to 16 pixels in one
   frame. The algorithm used for scrolling is "Scroller_XUnlimited" which is
   broadly explained in: http://aminet.net/package/dev/src/ScrollingTrick.lha
 
-- Custom Sprite Engine
+- Custom Sprite Engine  
   A non-blitting* sprite engine that automatically handles attaching and/or
   connecting hardware sprites. Data is loaded as an Amos bank, but it has a
   completely different data structure.
@@ -55,33 +55,33 @@ as open Amos code to create the tile and sprite sets to use in the game.
   (*)built-in sprite engine in Amos uses blitter to set image data to sprites,
   this one doesn't and saves some time for your Bobs.
 
-- Color Fade Engine
+- Color Fade Engine  
   A totally new algorithm which can fade colors in and out in any steps, keeping
   color hues constant during fade and making brighter colors appear/disappear
   simultaneously with darker ones. It can fade all color changes (ie. Rainbows)
   in the copper list as well.
   And it only uses addition/subtraction, so highly optimized.
 
-- Collision and animation routines
+- Collision and animation routines  
   Some essential loops and variables are set up to provide a basic animation
   and platforming logic.
 
-- Demo graphics
+- Demo graphics  
   A test tileset and background scenery converted to the required data formats
-  are included.
-  Tileset and background art by: Amatnieks (aamatniekss.itch.io)
+  are included.  
+  Tileset and background art by: Amatnieks (aamatniekss.itch.io)  
   Player sprite image art by: Legnops (legnops.itch.io)
 
-- Tools
-    Sheet2CustomSprite.AMOS
-      Grabs sprite images from iff sprite sheets and creates a bank.
-   CustomSpriteMerger.AMOS
-      Merges two sprite banks into one.
-    Sheet2TileSet.AMOS
-      A code to grab tiles from tile sheets into an Amos Icon bank.
+- Tools  
+   * Sheet2CustomSprite.AMOS  
+         Grabs sprite images from iff sprite sheets and creates a bank.  
+   * CustomSpriteMerger.AMOS  
+         Merges two sprite banks into one.  
+   * Sheet2TileSet.AMOS  
+         A code to grab tiles from tile sheets into an Amos Icon bank.  
 
-### Requirements:
-   A classic Amiga computer.
+### Requirements:  
+   A classic Amiga computer.  
    AmosPro 2.00 or above.
 
 ### Licence:
