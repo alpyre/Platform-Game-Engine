@@ -105,7 +105,7 @@ Custom Sprite Bank data structure:
    Workflow recommendations:
    You can use Personal Paint to convert png sprite sheets into IFF files.
    Then use the provided Sheet2CustomSprite tool to create your custom sprite
-   banks. The minimum possible memory will allocated to display images (empty
+   banks. The minimum possible memory will be allocated to display images (empty
    sprites, lines and even planes are skipped). You can merge two banks together
    with the tool CustomSpriteMerger.
 
